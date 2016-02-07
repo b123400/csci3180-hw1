@@ -3,26 +3,29 @@
 
 C variables
       INTEGER count
+      INTEGER index
       INTEGER i, j, k
+      REAL precnt
 
       INTEGER x1, y1, x2, y2
       character table(23, 79)
 C program start
-      write ( *, '(a)' ) '  Hello, world!'
 
       open(UNIT=10, ERR=20, FILE='input.txt', STATUS='OLD')
       read(10, 11) count
  11   FORMAT(I2)
-      write (*, 11) count
 
-      read(10, 12) x1, y1
- 12   FORMAT(I2, 2X, I2)
-      write (*, 11) x1
-      write (*, 12) y1
+c      read(10, 12) x1, y1
+ 12   FORMAT(I2, X, I2)
 
 c initial table cells
       GOTO 100
  199  k = 0
+
+c read points
+      GOTO 300
+c draw last dot
+ 399  table(j, i) = '*'
 
 c print table cells
       GOTO 200
@@ -30,6 +33,8 @@ c print table cells
       close(10)
 
       stop
+
+c error handling
  20   write (*, '(a)') 'Failed open'
       stop
 c 21   write
@@ -38,7 +43,7 @@ c initial table cells
  100  i = 1
       j = 1
  101  IF (j .GT. 23) GOTO 159
-      table(j, i) = '*'
+      table(j, i) = '.'
       i = i + 1
       IF (i .GT. 79) GOTO 102
       GOTO 103
@@ -73,5 +78,57 @@ c print out the table
       j = j - 1
  203  GOTO 201
 
-      stop
+c read points
+ 300  index = 1
+      read (10, 12) x1, y1
+c grid starts at 0, so needa add
+      x1 = x1 + 1
+      y1 = y1 + 1
+      GOTO 303
+c swap
+ 302  x1 = x2
+      y1 = y2
+
+ 303  read (10, 12) x2, y2
+c grid starts at 0, so needa add
+      x2 = x2 + 1
+      y2 = y2 + 1
+      index = index + 1
+c x1 and x2 at this point should be ok
+c draw line
+      GOTO 400
+ 499  IF (index .EQ. count) GOTO 399
+      GOTO 302
+
+c draw line
+ 400  IF (x1 .GT. x2) i = x1 - x2
+      IF ((x2 .GT. x1) .OR. (x2 .EQ. x1)) i = x2 - x1
+      IF (y1 .GT. y2) j = y1 - y2
+      IF ((y2 .GT. y1) .OR. (y2 .EQ. y1)) j = y2 - y1
+      IF (i .GT. j) GOTO 500
+      GOTO 600
+ 599  k = 0
+ 699  k = 0
+      GOTO 499
+
+c loop x axis
+ 500  i = x1
+ 501  IF (i .EQ. x2) GOTO 599
+      precnt = (REAL(i) - REAL(x1)) / (REAL(x2) - REAL(x1))
+      j = precnt * (y2 - y1) + y1
+      table(j, i) = '*'
+      IF (x1 .LT. x2) i = i + 1
+      IF (x1 .GT. x2) i = i - 1
+      GOTO 501
+
+c loop y axis
+ 600  j = y1
+ 601  IF (j .EQ. y2) GOTO 699
+      precnt = (REAL(j) - REAL(y1)) / (REAL(y2) - REAL(y1))
+      i = precnt * (x2 - x1) + x1
+      table(j, i) = '*'
+      IF (y1 .LT. y2) j = j + 1
+      IF (y1 .GT. y2) j = j - 1
+      GOTO 601
+
       end
