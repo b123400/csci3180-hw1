@@ -27,23 +27,26 @@ c read points
 c draw last dot
  399  table(j, i) = '*'
 
+      open(UNIT=20, ERR=21, FILE='output.txt', STATUS='NEW')
 c print table cells
       GOTO 200
  299  k = 0
       close(10)
+      close(20)
 
       stop
 
 c error handling
  20   write (*, '(a)') 'Failed open'
       stop
-c 21   write
+ 21   write (*, '(a)') 'Cannot open file to write, file exist?'
+      stop
 
 c initial table cells
  100  i = 1
       j = 1
  101  IF (j .GT. 23) GOTO 159
-      table(j, i) = '.'
+      table(j, i) = ' '
       i = i + 1
       IF (i .GT. 79) GOTO 102
       GOTO 103
@@ -71,6 +74,8 @@ c print out the table
  201  IF (j .EQ. 0) GOTO 299
       IF (i .LT. 79) WRITE (*, '(a$)') table(j, i)
       IF (i .EQ. 79) WRITE (*, '(a)') table(j, i)
+      IF (i .LT. 79) WRITE (20, '(a$)') table(j, i)
+      IF (i .EQ. 79) WRITE (20, '(a)') table(j, i)
       i = i + 1
       IF (i .GT. 79) GOTO 202
       GOTO 203
